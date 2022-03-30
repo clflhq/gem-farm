@@ -20,7 +20,7 @@ const routes: Array<RouteRecordRaw> = [
   //   component: Farmer,
   // },
   {
-    path: '/staking/coinfra-samurai',
+    path: '/coinfra-samurai',
     component: Farmer,
     props: {
       collectionName: 'Coinfra Samurai',
@@ -28,7 +28,7 @@ const routes: Array<RouteRecordRaw> = [
     },
   },
   {
-    path: '/staking/shinobi-girls',
+    path: '/shinobi-girls',
     component: Farmer,
     props: {
       collectionName: 'Shinobi Girls',
