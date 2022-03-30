@@ -9,7 +9,7 @@
     </div>
     <div class="mb-2">Your identity: {{ farmerAcc.identity.toBase58() }}</div>
     <div class="mb-2">Associated vault: {{ farmerAcc.vault.toBase58() }}</div>
-    <div class="mb-2">Gems staked: {{ farmerAcc.gemsStaked }}</div>
+    <div class="mb-2">NFTs staked: {{ farmerAcc.gemsStaked }}</div>
     <div class="mb-2">
       Min staking ends: {{ parseDate(farmerAcc.minStakingEndsTs) }}
     </div>
@@ -35,7 +35,7 @@
         />
       </div>
     </div>
-    <button class="nes-btn is-primary mb-5" @click="refreshFarmer">
+    <button class="inline-flex justify-center rounded-md border px-4 py-2 text-base font-medium sm:text-sm border-transparent text-white hover:bg-blue-600 bg-blue-500 focus:outline-none mb-5" @click="refreshFarmer">
       Refresh account
     </button>
   </div>
