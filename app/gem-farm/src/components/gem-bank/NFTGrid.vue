@@ -1,5 +1,5 @@
 <template>
-  <div class="border-4 border-black p-3">
+  <div class="nes-container">
     <p class="mb-3 font-bold">{{ title }}</p>
     <slot />
     <div class="flex flex-wrap">
