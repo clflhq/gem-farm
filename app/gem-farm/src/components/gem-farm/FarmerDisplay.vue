@@ -1,6 +1,6 @@
 <template>
   <div class="nes-container with-title">
-    <p class="title">Your Staking Account</p>
+    <p class="mb-5 text-2xl font-bold">Your Staking Account</p>
     <div class="mb-2">
       state:
       <p class="inline-block bg-yellow-200">
