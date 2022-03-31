@@ -14,7 +14,7 @@
       </div>
     </div> -->
 
-    <div v-if="farmerAcc">
+    <div>
       <FarmerDisplay
         :key="farmerAcc"
         :farm="farm"
@@ -27,9 +27,14 @@
       <Vault
         :key="farmerAcc"
         class="mb-10"
-        :vault="farmerAcc.vault.toBase58()"
-        @selected-wallet-nft="handleNewSelectedNFT"
+        @selected-wallet-nfts="handleNewSelectedNFTs"
+        @fetch-farmer="fetchFarmer"
+        :initFarmer="initFarmer"
+        :beginStaking="beginStaking"
+        :endStaking="endStaking"
+        :vault="farmerAcc?.vault.toBase58()"
         :candyMachineId="candyMachineId"
+        :farmerState="farmerState ? farmerState : 'unstaked'"
       >
         <button
           v-if="farmerState === 'staked' && selectedNFTs.length > 0"
@@ -39,20 +44,6 @@
           Add NFTs (resets staking)
         </button>
         <button
-          v-if="farmerState === 'unstaked'"
-          class="inline-flex justify-center items-center rounded-md border px-4 py-2 text-base font-medium sm:text-sm border-transparent text-white hover:bg-green-600 bg-green-500 focus:outline-none mr-5"
-          @click="beginStaking"
-        >
-          Begin staking
-        </button>
-        <button
-          v-if="farmerState === 'staked'"
-          class="inline-flex justify-center items-center rounded-md border px-4 py-2 text-base font-medium sm:text-sm border-transparent text-white hover:bg-red-600 bg-red-500 focus:outline-none  mr-5"
-          @click="endStaking"
-        >
-          End staking
-        </button>
-        <button
           v-if="farmerState === 'pendingCooldown'"
           class="inline-flex justify-center items-center rounded-md border px-4 py-2 text-base font-medium sm:text-sm border-transparent text-white hover:bg-red-600 bg-red-500 focus:outline-none  is-error mr-5"
           @click="endStaking"
@@ -60,19 +51,9 @@
           End cooldown
         </button>
         <button class="inline-flex justify-center items-center rounded-md border px-4 py-2 text-base font-medium sm:text-sm border-transparent text-white hover:bg-yellow-600 bg-yellow-500 focus:outline-none  is-warning" @click="claim">
-          Claim {{ availableA }} A / {{ availableB }} B
+          Claim {{ availableA ? availableA : 0 }} A / {{ availableA ? availableB : 0 }} B
         </button>
       </Vault>
-    </div>
-    <div v-else>
-      <div class="w-full text-center mb-5">
-        Farmer account not found :( Create a new one?
-      </div>
-      <div class="w-full text-center">
-        <button class="inline-flex justify-center rounded-md border px-4 py-2 text-base font-medium sm:text-sm border-transparent text-white hover:bg-blue-600 bg-blue-500 focus:outline-none" @click="initFarmer">
-          New Farmer
-        </button>
-      </div>
     </div>
   </div>
 </template>
@@ -107,7 +88,6 @@ export default defineComponent({
     });
 
     // --------------------------------------- farmer details
-    console.log("props", props)
     const collectionName = ref<string>(props.collectionName!);
     const farm = ref<string>(props.farmAddress!);
     const candyMachineId = ref<string>(props.candyMachineId!);
@@ -134,7 +114,7 @@ export default defineComponent({
         .toString();
     };
 
-    const fetchfarm = async () => {
+    const fetchFarm = async () => {
       farmAcc.value = await gf.fetchFarmAcc(new PublicKey(farm.value!));
       console.log(
         `farm found at ${farm.value}:`,
@@ -170,7 +150,7 @@ export default defineComponent({
         availableB.value = undefined;
 
         try {
-          await fetchfarm();
+          await fetchFarm();
           await fetchFarmer();
         } catch (e) {
           console.log(`farm with PK ${farm.value} not found :(`);
@@ -179,8 +159,8 @@ export default defineComponent({
     };
 
     const initFarmer = async () => {
-      await gf.initFarmerWallet(new PublicKey(farm.value!));
-      await fetchFarmer();
+      const result = await gf.initFarmerWallet(new PublicKey(farm.value!));
+      return result;
     };
 
     // --------------------------------------- staking
@@ -212,7 +192,7 @@ export default defineComponent({
     // --------------------------------------- adding extra gem
     const selectedNFTs = ref<INFT[]>([]);
 
-    const handleNewSelectedNFT = (newSelectedNFTs: INFT[]) => {
+    const handleNewSelectedNFTs = (newSelectedNFTs: INFT[]) => {
       console.log(`selected ${newSelectedNFTs.length} NFTs`);
       selectedNFTs.value = newSelectedNFTs;
     };
@@ -266,8 +246,9 @@ export default defineComponent({
       claim,
       handleRefreshFarmer,
       selectedNFTs,
-      handleNewSelectedNFT,
+      handleNewSelectedNFTs,
       addGems,
+      fetchFarmer,
     };
   },
 });

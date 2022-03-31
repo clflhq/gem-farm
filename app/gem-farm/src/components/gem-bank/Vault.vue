@@ -2,14 +2,25 @@
   <!--control buttons-->
   <div class="mb-10 flex justify-center">
     <button
-      v-if="
-        (toWalletNFTs && toWalletNFTs.length) ||
-        (toVaultNFTs && toVaultNFTs.length)
-      "
+      v-if="toWalletNFTs && toWalletNFTs.length"
       class="inline-flex justify-center rounded-md border px-4 py-2 text-base font-medium sm:text-sm border-transparent text-white hover:bg-blue-600 bg-blue-500 focus:outline-none mr-5"
       @click="moveNFTsOnChain"
     >
       Move NFTs!
+    </button>
+    <button
+      v-if="farmerState === 'unstaked' && desiredVaultNFTs && desiredVaultNFTs.length"
+      class="inline-flex justify-center items-center rounded-md border px-4 py-2 text-base font-medium sm:text-sm border-transparent text-white hover:bg-green-600 bg-green-500 focus:outline-none mr-5"
+      @click="beginStaking"
+    >
+      Begin staking
+    </button>
+    <button
+      v-if="farmerState === 'staked'"
+      class="inline-flex justify-center items-center rounded-md border px-4 py-2 text-base font-medium sm:text-sm border-transparent text-white hover:bg-red-600 bg-red-500 focus:outline-none  mr-5"
+      @click="endStaking"
+    >
+      End staking
     </button>
     <slot />
   </div>
@@ -41,7 +52,6 @@
 
     <!--right-->
     <NFTGrid
-      v-if="bank && vault"
       title="Your vault"
       class="flex-1"
       :nfts="desiredVaultNFTs"
@@ -78,8 +88,12 @@ export default defineComponent({
   props: {
     vault: String,
     candyMachineId: String,
+    farmerState: String,
+    initFarmer: Function,
+    beginStaking: Function,
+    endStaking: Function,
   },
-  emits: ['selected-wallet-nft'],
+  emits: ['fetch-farmer', 'selected-wallet-nfts'],
   setup(props, ctx) {
     const { wallet, getWallet } = useWallet();
     const { cluster, getConnection } = useCluster();
@@ -156,7 +170,13 @@ export default defineComponent({
     });
 
     onMounted(async () => {
+      //init gem bank
       gb = await initGemBank(getConnection(), getWallet()!);
+      if(!props.vault) {
+        //populate wallet nfts
+        await populateWalletNFTs();
+        return
+      }
 
       //prep vault + bank variables
       vault.value = new PublicKey(props.vault!);
@@ -175,7 +195,7 @@ export default defineComponent({
         const index = selectedWalletNFTs.value.indexOf(e.nft);
         selectedWalletNFTs.value.splice(index, 1);
       }
-      ctx.emit('selected-wallet-nft', selectedWalletNFTs.value);
+      ctx.emit('selected-wallet-nfts', selectedWalletNFTs.value);
     };
 
     const handleVaultSelected = (e: any) => {
@@ -221,6 +241,40 @@ export default defineComponent({
       }
       await Promise.all([populateWalletNFTs(), populateVaultNFTs()]);
     };
+
+    const afterInitFarmerHandling = async () => {
+      if(toVaultNFTs.value && toVaultNFTs.value.length) {
+        await moveNFTsOnChain();
+      }
+      await props.beginStaking!();
+    }
+
+    // begin staking
+    const beginStaking = async () => {
+      if(props.vault) {
+        await afterInitFarmerHandling()
+        return;
+      }
+      // init farmer
+      const result = await props.initFarmer!();
+      vault.value = result.vault
+      await updateVaultState();
+      await afterInitFarmerHandling()
+    }
+
+    // end staking
+    const endStaking = async () => {
+      // end unstaked
+      await props.endStaking!();
+
+      // end cooldown
+      await props.endStaking!();
+
+      // update nfts
+      toWalletNFTs.value.push(...desiredVaultNFTs.value);
+      await moveNFTsOnChain();
+      ctx.emit('fetch-farmer');
+    }
 
     //to vault = vault desired - vault current
     watch(
@@ -299,6 +353,9 @@ export default defineComponent({
       // eslint-disable-next-line vue/no-dupe-keys
       vault,
       vaultLocked,
+      farmerState: props.farmerState,
+      beginStaking,
+      endStaking
     };
   },
 });

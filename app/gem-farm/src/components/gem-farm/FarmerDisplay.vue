@@ -4,22 +4,23 @@
     <div class="mb-2">
       state:
       <p class="inline-block bg-yellow-200">
-        {{ parseFarmerState(farmerAcc) }}
+        {{ farmerAcc ? parseFarmerState(farmerAcc) : "unstaked" }}
       </p>
     </div>
-    <div class="mb-2">Your identity: {{ farmerAcc.identity.toBase58() }}</div>
-    <div class="mb-2">Associated vault: {{ farmerAcc.vault.toBase58() }}</div>
-    <div class="mb-2">NFTs staked: {{ farmerAcc.gemsStaked }}</div>
+    <div class="mb-2">Your identity: {{ farmerAcc ? farmerAcc.identity.toBase58() : wallet.publicKey }}</div>
+    <div class="mb-2">Associated vault: {{ farmerAcc ? farmerAcc.vault.toBase58() : "" }}</div>
+    <div class="mb-2">NFTs staked: {{ farmerAcc ? farmerAcc.gemsStaked : 0 }}</div>
     <div class="mb-2">
-      Min staking ends: {{ parseDate(farmerAcc.minStakingEndsTs) }}
+      Min staking ends: {{ farmerAcc ? parseDate(farmerAcc.minStakingEndsTs) : "" }}
     </div>
     <div class="mb-5">
-      Cooldown ends: {{ parseDate(farmerAcc.cooldownEndsTs) }}
+      Cooldown ends: {{ farmerAcc ? parseDate(farmerAcc.cooldownEndsTs) : "" }}
     </div>
 
     <div class="flex mb-5">
       <div class="flex-1 mr-5">
         <FarmerRewardDisplay
+          v-if="farmerAcc"
           :key="farmerAcc.rewardA"
           :farmReward="farmAcc.rewardA"
           :reward="farmerAcc.rewardA"
@@ -28,6 +29,7 @@
       </div>
       <div class="flex-1">
         <FarmerRewardDisplay
+          v-if="farmerAcc"
           :key="farmerAcc.rewardB"
           :farmReward="farmAcc.rewardB"
           :reward="farmerAcc.rewardB"
@@ -93,6 +95,7 @@ export default defineComponent({
       refreshFarmer,
       parseFarmerState,
       parseDate,
+      wallet,
     };
   },
 });

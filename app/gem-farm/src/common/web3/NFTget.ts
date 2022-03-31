@@ -80,14 +80,21 @@ export async function getNFTsByOwner(
   conn: Connection,
   candyMachineId: string
 ): Promise<INFT[]> {
+  // get candyMachineCreator
   const [candyMachineCreator] = await getCandyMachineCreator(
     new PublicKey(candyMachineId)
   );
   console.log('candyMachineCreator', candyMachineCreator.toString());
+
+  // get tokens
   const tokens = await getTokensByOwner(owner, conn);
   console.log(`found ${tokens.length} tokens`);
+
+  // get nfts
   const nfts = await getNFTMetadataForMany(tokens, conn);
   console.log('nfts', nfts);
+
+  // filter target nfts
   const targetNfts = nfts.filter(
     (n) =>
       (n.onchainMetadata as any).data.creators.length > 0 &&
