@@ -29,7 +29,7 @@
         class="mb-10"
         :vault="farmerAcc.vault.toBase58()"
         @selected-wallet-nft="handleNewSelectedNFT"
-        :collectionName="collectionName"
+        :candyMachineId="candyMachineId"
       >
         <button
           v-if="farmerState === 'staked' && selectedNFTs.length > 0"
@@ -91,7 +91,7 @@ import { findFarmerPDA, stringifyPKsAndBNs } from '@gemworks/gem-farm-ts';
 
 export default defineComponent({
   components: { Vault, FarmerDisplay, ConfigPane },
-  props: {collectionName: String, farmAddress: String},
+  props: {collectionName: String, farmAddress: String, candyMachineId: String},
   setup(props) {
     const { wallet, getWallet } = useWallet();
     const { cluster, getConnection } = useCluster();
@@ -110,6 +110,7 @@ export default defineComponent({
     console.log("props", props)
     const collectionName = ref<string>(props.collectionName!);
     const farm = ref<string>(props.farmAddress!);
+    const candyMachineId = ref<string>(props.candyMachineId!);
     const farmAcc = ref<any>();
 
     const farmerIdentity = ref<string>();
@@ -252,6 +253,7 @@ export default defineComponent({
       wallet,
       farm,
       collectionName,
+      candyMachineId,
       farmAcc,
       farmer: farmerIdentity,
       farmerAcc,

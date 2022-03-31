@@ -2,6 +2,11 @@ import { Connection, PublicKey } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import axios from 'axios';
 import { programs } from '@metaplex/js';
+import * as anchor from '@project-serum/anchor';
+
+const CANDY_MACHINE_PROGRAM_V2_ID = new PublicKey(
+  'cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ'
+);
 
 const {
   metadata: { Metadata },
@@ -83,13 +88,36 @@ export async function getNFTMetadataForMany(
   return nfts as INFT[];
 }
 
+async function deriveCandyMachineV2ProgramAddress(
+  candyMachineId: anchor.web3.PublicKey
+): Promise<[PublicKey, number]> {
+  return await PublicKey.findProgramAddress(
+    [Buffer.from('candy_machine'), candyMachineId.toBuffer()],
+    CANDY_MACHINE_PROGRAM_V2_ID
+  );
+}
+
 export async function getNFTsByOwner(
   owner: PublicKey,
   conn: Connection,
-  collectionName?: string
+  candyMachineId: string
 ): Promise<INFT[]> {
-  const tokens = await getTokensByOwner(owner, conn);
-  console.log(`found ${tokens.length} tokens`);
+  const [candyMachineCreator] = await deriveCandyMachineV2ProgramAddress(
+    new PublicKey(candyMachineId)
+  );
+  console.log('candyMachineCreator', candyMachineCreator.toString());
+  const metadatas = (await Metadata.findByOwnerV2(conn, owner)).filter(
+    (m) =>
+      m.data.data.creators &&
+      m.data.data.creators.length > 0 &&
+      m.data.data.creators[0].address === candyMachineCreator.toBase58()
+  );
+  console.log('metadatas', metadatas);
+  const tokens = metadatas.map((m) => ({
+    pubkey: m.pubkey,
+    mint: m.data.mint,
+  }));
+  console.log(`found ${metadatas.length} tokens`);
 
-  return await getNFTMetadataForMany(tokens, conn, collectionName);
+  return await getNFTMetadataForMany(tokens, conn);
 }
