@@ -26,6 +26,9 @@ async function getTokensByOwner(owner: PublicKey, conn: Connection) {
       return amount.decimals === 0 && amount.uiAmount === 1;
     })
     .map((t) => {
+      console.log('token', t);
+      console.log('public', t.pubkey.toString());
+      console.log('mint', t.account.data.parsed.info.mint);
       return { pubkey: t.pubkey, mint: t.account.data.parsed.info.mint };
     });
 }
@@ -38,6 +41,8 @@ async function getNFTMetadata(
   // console.log('Pulling metadata for:', mint);
   try {
     const metadataPDA = await Metadata.getPDA(mint);
+    console.log('mint', mint);
+    console.log('metadataPDA', metadataPDA.toString());
     const onchainMetadata = (await Metadata.load(conn, metadataPDA)).data;
     const externalMetadata = (await axios.get(onchainMetadata.data.uri)).data;
     return {
@@ -54,22 +59,22 @@ async function getNFTMetadata(
 export async function getNFTMetadataForMany(
   tokens: any[],
   conn: Connection,
-  connectionName?: string
+  collectionName?: string
 ): Promise<INFT[]> {
   const promises: Promise<INFT | undefined>[] = [];
   tokens.forEach((t) => promises.push(getNFTMetadata(t.mint, conn, t.pubkey)));
   let nfts = (await Promise.all(promises)).filter((n) => !!n);
-  if (connectionName) {
+  if (collectionName) {
     nfts.forEach((n) => {
       console.log('name', (n?.externalMetadata as any).collection?.name);
-      console.log('connectionName', connectionName);
+      console.log('collectionName', collectionName);
       console.log(
         'true',
-        (n?.externalMetadata as any).collection?.name === connectionName
+        (n?.externalMetadata as any).collection?.name === collectionName
       );
     });
     nfts = nfts.filter(
-      (n) => (n?.externalMetadata as any).collection?.name === connectionName
+      (n) => (n?.externalMetadata as any).collection?.name === collectionName
     );
   }
   console.log('nfts', nfts);
@@ -81,10 +86,10 @@ export async function getNFTMetadataForMany(
 export async function getNFTsByOwner(
   owner: PublicKey,
   conn: Connection,
-  connectionName?: string
+  collectionName?: string
 ): Promise<INFT[]> {
   const tokens = await getTokensByOwner(owner, conn);
   console.log(`found ${tokens.length} tokens`);
 
-  return await getNFTMetadataForMany(tokens, conn, connectionName);
+  return await getNFTMetadataForMany(tokens, conn, collectionName);
 }
