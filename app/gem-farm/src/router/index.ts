@@ -25,6 +25,7 @@ const routes: Array<RouteRecordRaw> = [
     props: {
       collectionName: 'Coinfra Samurai',
       farmAddress: '4dHHXbjg2BcMhxZFNj4YPUHXpVWsZFWNTCiKmojJTyQS',
+      candyMachineId: '7V1xuf9HxVVWHGhme6cZX7vF3yWZdaWARNHJrrCsb34g',
     },
   },
   {
@@ -33,6 +34,7 @@ const routes: Array<RouteRecordRaw> = [
     props: {
       collectionName: 'Shinobi Girls',
       farmAddress: '4aG3Vn36dQycYfnMX9mZQQHaZgA5P85uevvn5e2JwUfJ',
+      candyMachineId: 'GigkY3DjUkKJwdkUtfWitccPW9K8rWQ78oFe7V8u82ca',
     },
   },
 ];

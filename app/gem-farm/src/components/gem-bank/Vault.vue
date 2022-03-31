@@ -77,7 +77,7 @@ export default defineComponent({
   components: { ArrowButton, NFTGrid },
   props: {
     vault: String,
-    collectionName: String,
+    candyMachineId: String,
   },
   emits: ['selected-wallet-nft'],
   setup(props, ctx) {
@@ -111,7 +111,7 @@ export default defineComponent({
         currentWalletNFTs.value = await getNFTsByOwner(
           getWallet()!.publicKey!,
           getConnection(),
-          props.collectionName
+          props.candyMachineId!
         );
         desiredWalletNFTs.value = [...currentWalletNFTs.value];
       }
