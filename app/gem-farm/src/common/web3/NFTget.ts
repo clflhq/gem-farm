@@ -30,12 +30,7 @@ async function getTokensByOwner(owner: PublicKey, conn: Connection) {
       const amount = t.account.data.parsed.info.tokenAmount;
       return amount.decimals === 0 && amount.uiAmount === 1;
     })
-    .map((t) => {
-      console.log('token', t);
-      console.log('public', t.pubkey.toString());
-      console.log('mint', t.account.data.parsed.info.mint);
-      return { pubkey: t.pubkey, mint: t.account.data.parsed.info.mint };
-    });
+    .map((t) => ({ pubkey: t.pubkey, mint: t.account.data.parsed.info.mint }));
 }
 
 async function getNFTMetadata(
@@ -46,8 +41,6 @@ async function getNFTMetadata(
   // console.log('Pulling metadata for:', mint);
   try {
     const metadataPDA = await Metadata.getPDA(mint);
-    console.log('mint', mint);
-    console.log('metadataPDA', metadataPDA.toString());
     const onchainMetadata = (await Metadata.load(conn, metadataPDA)).data;
     const externalMetadata = (await axios.get(onchainMetadata.data.uri)).data;
     return {
@@ -63,32 +56,17 @@ async function getNFTMetadata(
 
 export async function getNFTMetadataForMany(
   tokens: any[],
-  conn: Connection,
-  collectionName?: string
+  conn: Connection
 ): Promise<INFT[]> {
   const promises: Promise<INFT | undefined>[] = [];
   tokens.forEach((t) => promises.push(getNFTMetadata(t.mint, conn, t.pubkey)));
   let nfts = (await Promise.all(promises)).filter((n) => !!n);
-  if (collectionName) {
-    nfts.forEach((n) => {
-      console.log('name', (n?.externalMetadata as any).collection?.name);
-      console.log('collectionName', collectionName);
-      console.log(
-        'true',
-        (n?.externalMetadata as any).collection?.name === collectionName
-      );
-    });
-    nfts = nfts.filter(
-      (n) => (n?.externalMetadata as any).collection?.name === collectionName
-    );
-  }
-  console.log('nfts', nfts);
   console.log(`found ${nfts.length} metadatas`);
 
   return nfts as INFT[];
 }
 
-async function deriveCandyMachineV2ProgramAddress(
+async function getCandyMachineCreator(
   candyMachineId: anchor.web3.PublicKey
 ): Promise<[PublicKey, number]> {
   return await PublicKey.findProgramAddress(
@@ -102,22 +80,21 @@ export async function getNFTsByOwner(
   conn: Connection,
   candyMachineId: string
 ): Promise<INFT[]> {
-  const [candyMachineCreator] = await deriveCandyMachineV2ProgramAddress(
+  const [candyMachineCreator] = await getCandyMachineCreator(
     new PublicKey(candyMachineId)
   );
   console.log('candyMachineCreator', candyMachineCreator.toString());
-  const metadatas = (await Metadata.findByOwnerV2(conn, owner)).filter(
-    (m) =>
-      m.data.data.creators &&
-      m.data.data.creators.length > 0 &&
-      m.data.data.creators[0].address === candyMachineCreator.toBase58()
+  const tokens = await getTokensByOwner(owner, conn);
+  console.log(`found ${tokens.length} tokens`);
+  const nfts = await getNFTMetadataForMany(tokens, conn);
+  console.log('nfts', nfts);
+  const targetNfts = nfts.filter(
+    (n) =>
+      (n.onchainMetadata as any).data.creators.length > 0 &&
+      (n.onchainMetadata as any).data.creators[0].address ===
+        candyMachineCreator.toString()
   );
-  console.log('metadatas', metadatas);
-  const tokens = metadatas.map((m) => ({
-    pubkey: m.pubkey,
-    mint: m.data.mint,
-  }));
-  console.log(`found ${metadatas.length} tokens`);
+  console.log('targetNfts', targetNfts);
 
-  return await getNFTMetadataForMany(tokens, conn);
+  return targetNfts;
 }

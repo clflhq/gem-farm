@@ -134,7 +134,7 @@ export default defineComponent({
         .toString();
     };
 
-    const fetchFarn = async () => {
+    const fetchfarm = async () => {
       farmAcc.value = await gf.fetchFarmAcc(new PublicKey(farm.value!));
       console.log(
         `farm found at ${farm.value}:`,
@@ -170,7 +170,7 @@ export default defineComponent({
         availableB.value = undefined;
 
         try {
-          await fetchFarn();
+          await fetchfarm();
           await fetchFarmer();
         } catch (e) {
           console.log(`farm with PK ${farm.value} not found :(`);
