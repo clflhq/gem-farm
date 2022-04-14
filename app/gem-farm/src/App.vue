@@ -1,6 +1,15 @@
 <template>
-  <div class="relative h-full min-h-screen">
-    <div class="p-10">
+  <div class="relative h-full min-h-screen bg-gray-100">
+    <header class="px-4 py-5 md:px-8">
+      <a href="https://www.coinfra.io/">
+        <img
+          src="https://s3.ap-northeast-1.wasabisys.com/coinfra/assets/logo-Coinfra-black.svg"
+          alt="Coinfra"
+          class="h-8 inline cursor-pointer"
+        />
+      </a>
+    </header>
+    <div class="p-4 md:p-10 max-w-5xl mx-auto">
       <router-view />
     </div>
 

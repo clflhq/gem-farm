@@ -1,24 +1,57 @@
 <template>
-  <div class="nes-container with-title">
-    <p class="mb-5 text-2xl font-bold">Your Staking Account</p>
-    <div class="mb-2">
-      state:
-      <p class="inline-block bg-yellow-200">
-        {{ parseFarmerState(farmerAcc) }}
-      </p>
+  <div>
+    <div class="flex justify-center">
+      <button
+        class="inline-flex justify-center rounded-md border px-4 py-2 text-base font-medium sm:text-sm border-transparent text-white hover:bg-blue-600 bg-blue-500 focus:outline-none mb-10"
+        @click="refreshFarmer"
+      >
+        Refresh
+      </button>
     </div>
-    <div class="mb-2">Your identity: {{ farmerAcc.identity.toBase58() }}</div>
-    <div class="mb-2">Associated vault: {{ farmerAcc.vault.toBase58() }}</div>
-    <div class="mb-2">NFTs staked: {{ farmerAcc.gemsStaked }}</div>
-    <div class="mb-2">
-      Min staking ends: {{ parseDate(farmerAcc.minStakingEndsTs) }}
-    </div>
-    <div class="mb-5">
-      Cooldown ends: {{ parseDate(farmerAcc.cooldownEndsTs) }}
+    <div class="p-4 md:p-6 border-0 bg-white rounded-md shadow-md mb-10">
+      <p class="mb-5 text-2xl font-bold text-center">Your Staking Account</p>
+      <div class="max-w-xl mx-auto">
+        <div class="mb-2 flex">
+          <span class="w-1/3 md:w-1/4">state</span>:
+          <span class="ml-2 px-1 bg-yellow-200">
+            {{ parseFarmerState(farmerAcc) }}
+          </span>
+        </div>
+        <div class="mb-2 flex">
+          <span class="w-1/3 md:w-1/4">Your identity</span>:
+          <span class="w-2/3 md:w-3/4 pl-2 break-all">
+            {{ farmerAcc.identity.toBase58() }}
+          </span>
+        </div>
+        <div class="mb-2 flex">
+          <span class="w-1/3 md:w-1/4">Associated vault</span>:
+          <span class="w-2/3 md:w-3/4 pl-2 break-all">
+            {{ farmerAcc.vault.toBase58() }}
+          </span>
+        </div>
+        <div class="mb-2 flex">
+          <span class="w-1/3 md:w-1/4">NFTs staked</span>:
+          <span class="w-2/3 md:w-3/4 pl-2 break-all">
+            {{ farmerAcc.gemsStaked }}
+          </span>
+        </div>
+        <div class="mb-2 flex">
+          <span class="w-1/3 md:w-1/4">Min staking ends</span>:
+          <span class="w-2/3 md:w-3/4 pl-2 break-all">
+            {{ parseDate(farmerAcc.minStakingEndsTs) }}
+          </span>
+        </div>
+        <div class="flex">
+          <span class="w-1/3 md:w-1/4">Cooldown ends</span>:
+          <span class="w-2/3 md:w-3/4 pl-2 break-all">
+            {{ parseDate(farmerAcc.cooldownEndsTs) }}
+          </span>
+        </div>
+      </div>
     </div>
 
-    <div class="flex mb-5">
-      <div class="flex-1 mr-5">
+    <div class="md:flex mb-5">
+      <div class="flex-1 mb-5 md:mb-0 md:mr-5">
         <FarmerRewardDisplay
           :key="farmerAcc.rewardA"
           :farmReward="farmAcc.rewardA"
@@ -35,9 +68,6 @@
         />
       </div>
     </div>
-    <button class="inline-flex justify-center rounded-md border px-4 py-2 text-base font-medium sm:text-sm border-transparent text-white hover:bg-blue-600 bg-blue-500 focus:outline-none mb-5" @click="refreshFarmer">
-      Refresh account
-    </button>
   </div>
 </template>
 

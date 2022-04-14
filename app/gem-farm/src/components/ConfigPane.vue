@@ -1,7 +1,12 @@
 <template>
-  <div class="grid grid-cols-2 mb-10 gap-3">
+  <div class="grid grid-cols-2 mb-10 gap-3 max-w-xl mx-auto">
     <div class="col-span-1">
-      <select required class="mt-1 block border w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" id="cluster" v-model="chosenCluster">
+      <select
+        required
+        class="mt-1 block border w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+        id="cluster"
+        v-model="chosenCluster"
+      >
         <option :value="Cluster.Mainnet">Mainnet</option>
         <option :value="Cluster.Devnet">Devnet</option>
         <option :value="Cluster.Testnet">Testnet</option>
@@ -9,7 +14,12 @@
       </select>
     </div>
     <div class="col-span-1">
-      <select required class="mt-1 block border w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" id="wallet" v-model="chosenWallet">
+      <select
+        required
+        class="mt-1 block border w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+        id="wallet"
+        v-model="chosenWallet"
+      >
         <option class="text-gray-500" :value="null">Choose wallet..</option>
         <option :value="WalletName.Phantom">Phantom</option>
         <option :value="WalletName.Sollet">Sollet</option>
@@ -60,4 +70,3 @@ export default defineComponent({
   },
 });
 </script>
-
