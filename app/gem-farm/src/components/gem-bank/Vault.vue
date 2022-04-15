@@ -15,25 +15,27 @@
   </div>
 
   <!--wallet + vault view-->
-  <div class="flex items-stretch">
+  <div class="md:flex items-stretch">
     <!--left-->
     <NFTGrid
       title="Your wallet"
-      class="flex-1"
+      class="flex-1 p-4 md:p-6 bg-white border-0 rounded-md shadow-md"
       :nfts="desiredWalletNFTs"
       @selected="handleWalletSelected"
     />
 
     <!--mid-->
-    <div class="m-2 flex flex-col">
+    <div
+      class="m-2 flex flex-row-reverse items-center justify-center md:flex-col"
+    >
       <ArrowButton
         :disabled="vaultLocked"
-        class="my-2"
+        class="my-2 transform rotate-90 md:transform-none"
         @click="moveNFTsFE(false)"
       />
       <ArrowButton
         :disabled="vaultLocked"
-        class="my-2"
+        class="my-2 transform rotate-90 md:transform-none"
         :left="true"
         @click="moveNFTsFE(true)"
       />
@@ -43,7 +45,7 @@
     <NFTGrid
       v-if="bank && vault"
       title="Your vault"
-      class="flex-1"
+      class="flex-1 p-4 md:p-6 bg-white border-0 rounded-md shadow-md"
       :nfts="desiredVaultNFTs"
       @selected="handleVaultSelected"
     >

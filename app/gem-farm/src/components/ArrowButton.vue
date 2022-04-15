@@ -1,7 +1,7 @@
 <template>
   <button :disabled="disabled">
     <img
-      src="../assets/play.png"
+      src="https://s3.ap-northeast-1.wasabisys.com/coinfra/assets/icon-arrow-right.svg"
       alt="right"
       :width="60"
       :height="60"
